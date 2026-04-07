@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth";
 
 // Load .env file
 
@@ -44,15 +45,14 @@ app.use(express.json());
 // Prints method, url, timestamp in terminal so you can see everything
 
 app.use((req, res, next) => {
-  const time = new Date().toLocaleDateString();
+  const time = new Date().toLocaleTimeString();
   console.log(`[${time}] ${req.method} ${req.url}`);
   next(); // MUST call next() — passes request to the actual route handler
 });
 
 // ------ ROUTES ---------
-// We register auth routes here — more routes added later
-// import authRoutes from "./routes/auth"; // ← uncomment after Step 3
-// app.use("/api/auth", authRoutes);
+// We register auth routes here
+app.use("/api/auth", authRoutes);
 
 // ------ TEST ROUTE ---------
 
@@ -77,7 +77,6 @@ mongoose
     console.log("MongoDB connected successfully");
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
-      app.listen(PORT);
     });
   })
   .catch((error) => {

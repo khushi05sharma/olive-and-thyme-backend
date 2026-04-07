@@ -1,6 +1,9 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Router is like a mini Express app — handles just auth routes
 // In index.ts we tell Express: "all /api/auth requests go here"
@@ -108,3 +111,37 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ message: "Server error during login" });
   }
 });
+
+// ---- ROUTE 3: GET CURRENT USER -----
+
+router.get("/me", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    //verify the token
+    // jwt.verify checks signature and expiry
+    // If expired or tampered — it throws an error
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+
+    // find user in database using id from token
+    // .select("-password") means return everything EXCEPT password
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (error: any) {
+    console.error("Auth error:", error.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+});
+
+export default router;
