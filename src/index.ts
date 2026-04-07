@@ -7,6 +7,18 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// ─── ENV VALIDATION ───────────────────────────────────────────
+// Check all required env vars exist BEFORE starting anything
+// If missing — crash immediately with clear message
+
+if (!process.env.MONGO_URI) {
+  throw new Error("MONGO_URI is not defined in .env");
+}
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined in .env file");
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -27,6 +39,16 @@ app.use(
 
 app.use(express.json());
 
+// ------- REQUEST LOGGER ---------
+// This runs on EVERY request before it reaches any route
+// Prints method, url, timestamp in terminal so you can see everything
+
+app.use((req, res, next) => {
+  const time = new Date().toLocaleDateString();
+  console.log(`[${time}] ${req.method} ${req.url}`);
+  next(); // MUST call next() — passes request to the actual route handler
+});
+
 // ------ ROUTES ---------
 // We register auth routes here — more routes added later
 // import authRoutes from "./routes/auth"; // ← uncomment after Step 3
@@ -38,19 +60,24 @@ app.get("/", (req, res) => {
   res.json({ message: "Olive & Thyme API is running" });
 });
 
+// ─── 404 HANDLER ─────────────────────────────────────────────
+// If no route matched — send clear 404 instead of hanging forever
+app.use((req, res) => {
+  console.log(`[404] Route not found: ${req.method} ${req.url}`);
+  res.status(404).json({ error: "Route not found" });
+});
+
 // ─── CONNECT TO MONGODB THEN START SERVER ─────────────────────
 // We connect to database FIRST, then start listening for requests
 // If DB connection fails, we don't start the server at all
 
-if (!process.env.MONGO_URI) {
-  throw new Error("MONGO_URI is not defined in .env");
-}
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected successfully");
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
+      app.listen(PORT);
     });
   })
   .catch((error) => {
