@@ -24,7 +24,7 @@ const createToken = (userId: string): string => {
   );
 };
 
-// ─── ROUTE 1: SIGNUP ──────────────────────────────────────────
+// ---- ROUTE 1: SIGNUP ------
 // POST /api/auth/signup
 // Frontend sends: { name, email, password }
 // We return: { token, user }
@@ -62,5 +62,49 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "Email already in use" });
     }
     return res.status(500).json({ message: "Server error during signup" });
+  }
+});
+
+// ----- ROUTE 2: LOGIN -------
+// POST /api/auth/login
+// Frontend sends: { email, password }
+// We return: { token, user }
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    //basic validation
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "please provide email and password" });
+    }
+    // find user by email
+    // .select("+password") overrides select:false we set in schema
+    // We NEED password here to compare it — only in this route
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    //compare typed password with stored hash
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    //create token and send response
+    const token = createToken(user._id.toString());
+
+    return res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error during login" });
   }
 });
