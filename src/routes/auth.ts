@@ -35,15 +35,17 @@ const createToken = (userId: string): string => {
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
+    console.log(`[SIGNUP] Attempt → email: ${email}, name: ${name}`);
     //basic validation
     if (!name || !email || !password) {
+      console.log(`[SIGNUP] Failed → missing fields`);
       return res.status(400).json({ message: "All fields are required" });
     }
 
     //check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log(`[SIGNUP] Failed → email already exists: ${email}`);
       return res.status(400).json({ message: "User already exists" });
     }
     //create new user
@@ -51,6 +53,13 @@ router.post("/signup", async (req, res) => {
     const user = await User.create({ name, email, password });
     // create JWT token with user's id
     const token = createToken(user._id.toString());
+
+    console.log(`[SIGNUP] Success → user created`);
+    console.log(`  Name:  ${user.name}`);
+    console.log(`  Email: ${user.email}`);
+    console.log(`  ID:    ${user._id}`);
+    console.log(`  Token: ${token.substring(0, 20)}...`);
+
     // send response back to frontend
     return res.status(201).json({
       token,
@@ -76,9 +85,10 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log(`[LOGIN] Attempt → email: ${email}`);
     //basic validation
     if (!email || !password) {
+      console.log(`[LOGIN] Failed → missing fields`);
       return res
         .status(400)
         .json({ message: "please provide email and password" });
@@ -88,6 +98,7 @@ router.post("/login", async (req, res) => {
     // We NEED password here to compare it — only in this route
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
+      console.log(`[LOGIN] Failed → no user found for: ${email}`);
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
@@ -98,6 +109,11 @@ router.post("/login", async (req, res) => {
     }
     //create token and send response
     const token = createToken(user._id.toString());
+
+    console.log(`[LOGIN] Success → user logged in`);
+    console.log(`  Name:  ${user.name}`);
+    console.log(`  Email: ${user.email}`);
+    console.log(`  ID:    ${user._id}`);
 
     return res.status(200).json({
       token,
@@ -136,6 +152,8 @@ router.get("/me", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    console.log(`[ME] Success → returning user: ${user.email}`);
 
     return res.status(200).json({ user });
   } catch (error: any) {
