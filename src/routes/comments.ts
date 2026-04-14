@@ -41,8 +41,31 @@ router.post("/:recipeId", protect, async (req, res) => {
   }
 });
 
-
 // --- ROUTE 2: GET COMMENTS FOR A RECIPE ----
 // GET /api/comments/:recipeId
 // public — anyone can read comments, no login needed
 // returns comments sorted newest first
+
+router.get("/:recipeId", async (req, res) => {
+  try {
+    const recipeId = req.params.recipeId as string;
+
+    console.log(`[COMMENT] Fetching comments for recipe ${recipeId}`);
+
+    // Find all comments for this recipe
+    // sort({ createdAt: -1 }) = newest first (-1 = descending)
+    const comments = await Comment.find({ recipeId }).sort({ createdAt: -1 });
+
+    console.log(`[COMMENT] Found ${comments.length} comments`);
+
+    return res.status(200).json({ comments });
+  } catch (error: any) {
+    console.error("[COMMENT GET] Error:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// ─── ROUTE 3: DELETE A COMMENT ────────────────────────────────
+// DELETE /api/comments/:commentId
+// Protected — only the comment author can delete their own comment
