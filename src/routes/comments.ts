@@ -19,8 +19,11 @@ router.post("/:recipeId", protect, async (req, res) => {
       `[COMMENT] ${req.user!.email} commenting on recipe ${recipeId}`,
     );
 
+    console.log("BODY:", req.body);
+    console.log("TEXT:", text);
+
     // Validate input
-    if (!text || text.trim()) {
+    if (!text || !text.trim()) {
       return res.status(400).json({ message: "Comment text is required" });
     }
 
@@ -65,7 +68,36 @@ router.get("/:recipeId", async (req, res) => {
   }
 });
 
-
-// ─── ROUTE 3: DELETE A COMMENT ────────────────────────────────
+// ------- ROUTE 3: DELETE A COMMENT ---
 // DELETE /api/comments/:commentId
-// Protected — only the comment author can delete their own comment
+// protected — only the comment author can delete their own comment
+
+router.delete("/:commentId", protect, async (req, res) => {
+  try {
+    const commentId = req.params.commentId as string;
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Check this user owns this comment
+    if (comment.userId !== req.user!.id) {
+      return res
+        .status(403)
+        .json({ message: "Not allowed to delete this comment" });
+    }
+
+    await comment.deleteOne();
+
+    console.log(`[COMMENT] Deleted → ${commentId} by ${req.user!.email}`);
+
+    return res.status(200).json({ message: "Comment deleted" });
+  } catch (error: any) {
+    console.error("[COMMENT DELETE] Error:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+export default router;

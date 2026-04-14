@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
+import commentRoutes from "./routes/comments";
 
 // Load .env file
 
@@ -56,6 +57,8 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 
 app.use("/api/users", userRoutes);
+
+app.use("/api/comments", commentRoutes);
 
 // ------ TEST ROUTE ---------
 
