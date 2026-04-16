@@ -155,7 +155,9 @@ router.get("/me", async (req, res) => {
 
     console.log(`[ME] Success → returning user: ${user.email}`);
 
-    return res.status(200).json({ user });
+    return res
+      .status(200)
+      .json({ id: user._id, name: user.name, email: user.email });
   } catch (error: any) {
     console.error("Auth error:", error.message);
     return res.status(401).json({ message: "Invalid or expired token" });
