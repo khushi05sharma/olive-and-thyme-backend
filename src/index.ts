@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import commentRoutes from "./routes/comments";
+import recipeRoutes from "./routes/recipes";
 
 // Load .env file
 
@@ -59,6 +60,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
 app.use("/api/comments", commentRoutes);
+
+app.use("/api/recipes", recipeRoutes);
 
 // ------ TEST ROUTE ---------
 
