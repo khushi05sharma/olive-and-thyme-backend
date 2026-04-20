@@ -95,6 +95,28 @@ router.get("/my", protect, async (req, res) => {
   }
 });
 
+// ---- GET /api/recipes/:id — GET SINGLE RECIPE -----
+
+router.get("/:id", async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id);
+
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    console.log(`[RECIPE] Fetch single → ${req.params.id}`);
+
+    return res.status(200).json(recipe);
+  } catch (error: any) {
+    console.error("[RECIPE GET ONE] Error:", error.message);
+    return res.status(500).json({ message: "Server error fetching recipe" });
+  }
+});
+
+
+
+
 // ---- DELETE /api/recipes/:id — DELETE RECIPE -----
 // Protected — only the recipe owner can delete
 
