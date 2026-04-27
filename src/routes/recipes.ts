@@ -114,8 +114,67 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// ---- PUT /api/recipes/:id — UPDATE RECIPE ----
+// Protected — only owner can edit
 
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id);
 
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    // check ownership
+
+    if (recipe.author.id !== req.user!.id) {
+      return res
+        .status(403)
+        .json({ message: "Not allowed to edit this recipe" });
+    }
+
+    const {
+      title,
+      description,
+      image,
+      cookingTime,
+      servings,
+      difficulty,
+      cuisine,
+      mealType,
+      diet,
+      ingredients,
+      instructions,
+    } = req.body;
+
+    // clean arrays
+
+    const cleanIngredients = ingredients.filter((i: string) => i.trim());
+    const cleanInstructions = instructions.filter((i: string) => i.trim());
+
+    // update fields
+    recipe.title = title.trim();
+    recipe.description = description.trim();
+    recipe.image = image?.trim() || "";
+    recipe.cookingTime = Number(cookingTime);
+    recipe.servings = Number(servings);
+    recipe.difficulty = difficulty;
+    recipe.cuisine = cuisine;
+    recipe.mealType = mealType;
+    recipe.diet = diet || [];
+    recipe.ingredients = cleanIngredients;
+    recipe.instructions = cleanInstructions;
+
+    await recipe.save();
+
+    console.log(`[RECIPE] Updated → ${req.params.id}`);
+
+    return res.status(200).json({ recipe });
+  } catch (error: any) {
+    console.error("[RECIPE UPDATE] Error:", error.message);
+    return res.status(500).json({ message: "Server error updating recipe" });
+  }
+});
 
 // ---- DELETE /api/recipes/:id — DELETE RECIPE -----
 // Protected — only the recipe owner can delete
