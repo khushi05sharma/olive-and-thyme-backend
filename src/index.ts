@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import commentRoutes from "./routes/comments";
 import recipeRoutes from "./routes/recipes";
+import notificationRoutes from "./routes/notifications";
 
 // Load .env file
 
@@ -62,6 +63,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/comments", commentRoutes);
 
 app.use("/api/recipes", recipeRoutes);
+
+app.use("/api/notifications", notificationRoutes);
 
 // ------ TEST ROUTE ---------
 

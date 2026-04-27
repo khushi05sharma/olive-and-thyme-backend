@@ -44,3 +44,47 @@ router.patch("/:id/read", protect, async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+
+// --------- MARK ALL AS READ -------------------
+
+router.patch("/read-all", protect, async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { recipientId: req.user!.id, read: false },
+      { read: true },
+    );
+
+    console.log(`[NOTIF] Marked all read for ${req.user!.email}`);
+
+    return res
+      .status(200)
+      .json({ message: "All notifications marked as read" });
+  } catch (error: any) {
+    console.error("[NOTIF READ ALL] Error:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ----- DELETE ONE ----------------
+
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      recipientId: req.user!.id,
+    });
+
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    console.log(`[NOTIF] Deleted ${req.params.id}`);
+
+    return res.status(200).json({ message: "Notification deleted" });
+  } catch (error: any) {
+    console.error("[NOTIF DELETE] Error:", error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+export default router;
