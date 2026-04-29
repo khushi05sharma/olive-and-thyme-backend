@@ -1,6 +1,8 @@
 import express from "express";
 import protect from "../middleware/protect";
 import Comment from "../models/Comment";
+import Notification from "../models/Notification";
+import Recipe from "../models/Recipe";
 
 const router = express.Router();
 
@@ -36,6 +38,32 @@ router.post("/:recipeId", protect, async (req, res) => {
     });
 
     console.log(`[COMMENT] Created → ID: ${comment._id}`);
+
+    // ------- AUTO-CREATE NOTIFICATION ----
+    try {
+  // Skip if recipeId is undefined or too short to be a MongoDB ID
+  if (recipeId && recipeId.length >= 20) {
+    const recipe = await Recipe.findById(recipeId);
+    console.log(`[NOTIF] Recipe lookup:`, recipe?.title ?? "not found");
+
+    if (recipe && recipe.author.id !== req.user!.id) {
+      await Notification.create({
+        recipientId: recipe.author.id,
+        actorId:     req.user!.id,
+        actorName:   req.user!.name,
+        type:        "comment",
+        recipeId:    recipe._id.toString(),
+        recipeTitle: recipe.title,
+        message:     "commented on your recipe",
+      });
+      console.log(`[NOTIF] Comment notification created for ${recipe.author.name}`);
+    }
+  } else {
+    console.log(`[NOTIF] Skipping — recipeId invalid or Spoonacular: ${recipeId}`);
+  }
+} catch (err: any) {
+  console.log(`[NOTIF] Skipped:`, err.message);
+}
 
     return res.status(201).json({ comment });
   } catch (error: any) {
