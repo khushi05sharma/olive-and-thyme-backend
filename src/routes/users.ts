@@ -1,6 +1,8 @@
 import express from "express";
 import User from "../models/User";
 import protect from "../middleware/protect";
+import Notification from "../models/Notification";
+import Recipe from "../models/Recipe";
 
 const router = express.Router();
 
@@ -33,6 +35,38 @@ router.post("/like/:recipeId", protect, async (req, res) => {
       { new: true },
     ).select("likedRecipes");
 
+    // ------- AUTO-CREATE NOTIFICATION -------------
+
+// Only notify if user liked someone else's recipe (not their own)
+// Only works for user-uploaded recipes (in my DB) - not Spoonacular
+if (!alreadyLiked) {
+  try {
+    // Skip Spoonacular IDs — they are short numbers like "716429"
+    // MongoDB IDs are 24 characters like "69e616a3039eba3b13336a43"
+    if (recipeId.length >= 20) {
+      const recipe = await Recipe.findById(recipeId);
+      console.log(`[NOTIF] Recipe lookup:`, recipe?.title ?? "not found");
+
+      if (recipe && recipe.author.id !== req.user!.id) {
+        await Notification.create({
+          recipientId: recipe.author.id,
+          actorId:     req.user!.id,
+          actorName:   req.user!.name,
+          type:        "like",
+          recipeId:    recipe._id.toString(),
+          recipeTitle: recipe.title,
+          message:     "liked your recipe",
+        });
+        console.log(`[NOTIF] Like notification created for ${recipe.author.name}`);
+      }
+    } else {
+      console.log(`[NOTIF] Skipping Spoonacular recipe: ${recipeId}`);
+    }
+  } catch (err: any) {
+    console.log(`[NOTIF] Error:`, err.message);
+  }
+}
+
     return res.status(200).json({
       liked: !alreadyLiked, // return new like status
       likedRecipes: updateUser!.likedRecipes, // return updated list of liked recipes
@@ -43,7 +77,7 @@ router.post("/like/:recipeId", protect, async (req, res) => {
   }
 });
 
-// ---- ROUTE 2: TOGGLE SAVE ---
+// ---- TOGGLE SAVE ---
 
 router.post("/save/:recipeId", protect, async (req, res) => {
   try {
@@ -77,7 +111,7 @@ router.post("/save/:recipeId", protect, async (req, res) => {
   }
 });
 
-// --- ROUTE 3: GET USER INTERACTIONS ---
+// --- GET USER INTERACTIONS ---
 
 router.get("/me/interactions", protect, async (req, res) => {
   try {
@@ -99,4 +133,11 @@ router.get("/me/interactions", protect, async (req, res) => {
   }
 });
 
+
 export default router;
+
+
+
+
+
+
