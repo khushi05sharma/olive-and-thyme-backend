@@ -1,16 +1,18 @@
+import dotenv from "dotenv";
+// Load .env file
+
+dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import commentRoutes from "./routes/comments";
 import recipeRoutes from "./routes/recipes";
 import notificationRoutes from "./routes/notifications";
 
-// Load .env file
 
-dotenv.config();
 
 // ─── ENV VALIDATION ───────────────────────────────────────────
 // Check all required env vars exist BEFORE starting anything
