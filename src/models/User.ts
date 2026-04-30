@@ -1,10 +1,6 @@
 import mongoose, { Document, Model } from "mongoose";
 import bcrypt from "bcryptjs";
 
-// ─── STEP 1: TypeScript interface ─────────────────────────────
-// Describes what a User looks like in TypeScript
-// Document is a Mongoose type — gives us _id, save(), etc automatically
-
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -12,14 +8,15 @@ export interface IUser extends Document {
   savedRecipes: string[];
   likedRecipes: string[];
   createdAt: Date;
+  resetToken?: string | null;
+  resetTokenExpiry?: Date | null;
 
-  // Method we add to every user — used during login to check password
+  // method we add to every user - used during login to check password
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// ─── STEP 2: Schema ───────────────────────────────────────────
-// Defines the shape of the document in MongoDB
-// this is like a column definitions in a database table
+// Schema ----------
+// defines shape of document in Mongodb
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -55,6 +52,19 @@ const userSchema = new mongoose.Schema<IUser>(
       default: [], // starts as empty array for every new user
     },
 
+    resetToken: {
+      type: String,
+      default: null,
+      // select: false - never accidentally returned in API responses
+      select: false,
+    },
+
+    resetTokenExpiry: {
+      type: Date,
+      default: null,
+      select: false,
+    },
+
     likedRecipes: {
       type: [String],
       default: [],
@@ -67,10 +77,10 @@ const userSchema = new mongoose.Schema<IUser>(
   },
 );
 
-// ─── STEP 3: Pre-save hook ────────────────────────────────────
-// This runs automatically BEFORE every .save() call
-// If password hasn't changed, skip hashing (important for profile updates)
-// If password is new or changed, hash it with bcrypt
+//Pre-save hook-------
+// runs automatically BEFORE every .save() call
+// if password hasn't changed, skip hashing (important for profile updates)
+// if password is new or changed, hash it with bcrypt
 
 userSchema.pre("save", async function () {
   // "this" refers to the user document being saved
@@ -85,7 +95,7 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// ─── STEP 4: Instance method ──────────────────────────────────
+// ---- Instance method-----------
 // comparePassword is added to every user document
 // Used in login route: does typed password match stored hash?
 // bcrypt.compare handles the comparison
@@ -97,7 +107,7 @@ userSchema.methods.comparePassword = async function (
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// ─── STEP 5: Create and export the Model ─────────────────────
+// Create and export the Model
 // "User" = name of the collection in MongoDB (becomes "users" automatically)
 // IUser = TypeScript type for type safety
 
