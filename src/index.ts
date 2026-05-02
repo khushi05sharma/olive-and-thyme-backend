@@ -3,6 +3,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+console.log("ENV CHECK START ----------------");
+console.log("PORT:", process.env.PORT);
+console.log("MONGO_URI:", process.env.MONGO_URI ? "FOUND" : "MISSING");
+console.log("JWT_SECRET:", process.env.JWT_SECRET ? "FOUND" : "MISSING");
+console.log("GMAIL_USER:", process.env.GMAIL_USER ? "FOUND" : "MISSING");
+console.log("GMAIL_PASS:", process.env.GMAIL_PASS ? "FOUND" : "MISSING");
+console.log("ENV CHECK END ----------------");
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
