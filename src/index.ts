@@ -12,8 +12,6 @@ import commentRoutes from "./routes/comments";
 import recipeRoutes from "./routes/recipes";
 import notificationRoutes from "./routes/notifications";
 
-
-
 // ─── ENV VALIDATION ───────────────────────────────────────────
 // Check all required env vars exist BEFORE starting anything
 // If missing — crash immediately with clear message
@@ -36,7 +34,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", /\.vercel\.app$/],
     credentials: true,
   }),
 );
