@@ -194,7 +194,7 @@ router.post("/forgot-password", async (req, res) => {
     await User.updateOne({ _id: user._id }, { resetToken, resetTokenExpiry });
 
     // Build reset URL — frontend page that reads the token from URL
-    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${resetToken}`;
 
     // Send email
     await transporter.sendMail({
