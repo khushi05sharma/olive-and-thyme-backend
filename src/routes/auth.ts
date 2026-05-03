@@ -2,7 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 import crypto from "crypto";
-import { transporter } from "../config/mail";
+import { resend } from "../config/mail";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -197,8 +197,8 @@ router.post("/forgot-password", async (req, res) => {
     const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${resetToken}`;
 
     // Send email
-    await transporter.sendMail({
-      from: `"Olive & Thyme" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: "Olive & Thyme <onboarding@resend.dev>",
       to: email,
       subject: "Reset Your Password — Olive & Thyme",
       html: `
