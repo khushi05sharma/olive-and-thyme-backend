@@ -139,19 +139,19 @@ npm run dev
 
 ## Deployment 🚀
 
-Backend deployed on Render
-Database hosted on MongoDB Atlas
-Frontend deployed on Vercel
+Backend deployed on Render  
+Database hosted on MongoDB Atlas  
+Frontend deployed on Vercel  
 
 ---
 
 ## Security Highlights 🔒
 
-Passwords hashed using bcrypt
-JWT-based authentication
-Protected routes using custom middleware
-Environment variables stored securely
-Authorization checks for recipe/comment ownership
+Passwords hashed using bcrypt  
+JWT-based authentication  
+Protected routes using custom middleware  
+Environment variables stored securely  
+Authorization checks for recipe/comment ownership  
 
 ---
 
