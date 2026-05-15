@@ -198,7 +198,7 @@ router.post("/forgot-password", async (req, res) => {
 
     // Send email
     await resend.emails.send({
-      from: "Olive & Thyme <onboarding@resend.dev>",
+      from: "<onboarding@resend.dev>",
       to: email,
       subject: "Reset Your Password — Olive & Thyme",
       html: `
