@@ -43,12 +43,11 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
-      // we never return password in API responses — select: false hides it by default
       select: false,
     },
 
     savedRecipes: {
-      type: [String], // array of strings
+      type: [String],
       default: [], // starts as empty array for every new user
     },
 
@@ -72,38 +71,29 @@ const userSchema = new mongoose.Schema<IUser>(
   },
   {
     // timestamps: true automatically adds createdAt and updatedAt fields
-    // MongoDB manages these — you never set them manually
     timestamps: true,
   },
 );
 
-//Pre-save hook-------
-// runs automatically BEFORE every .save() call
-// if password hasn't changed, skip hashing (important for profile updates)
-// if password is new or changed, hash it with bcrypt
+// -- Pre-save hook-------
 
 userSchema.pre("save", async function () {
   // "this" refers to the user document being saved
   // isModified checks if password field was changed in this save operation
   if (!this.isModified("password")) {
-    return; // password unchanged — skip hashing, move on
+    return;
   }
 
-  // 10 = salt rounds — higher = more secure but slower
-  // 10 is the industry standard balance
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
 // ---- Instance method-----------
 // comparePassword is added to every user document
-// Used in login route: does typed password match stored hash?
-// bcrypt.compare handles the comparison
 
 userSchema.methods.comparePassword = async function (
   candidatePassword: string,
 ): Promise<boolean> {
-  // bcrypt.compare returns true if match, false if not
   return bcrypt.compare(candidatePassword, this.password);
 };
 
