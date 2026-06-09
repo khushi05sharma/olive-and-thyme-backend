@@ -12,7 +12,7 @@ import commentRoutes from "./routes/comments";
 import recipeRoutes from "./routes/recipes";
 import notificationRoutes from "./routes/notifications";
 
-// ─── ENV VALIDATION ───────────────────────────────────────────
+// ─── ENV VALIDATION ───────
 // Check all required env vars exist BEFORE starting anything
 // If missing — crash immediately with clear message
 
