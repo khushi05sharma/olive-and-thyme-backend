@@ -110,10 +110,10 @@ router.post("/login", async (req, res) => {
     //create token and send response
     const token = createToken(user._id.toString());
 
-    console.log(`[LOGIN] Success → user logged in`);
-    console.log(`  Name:  ${user.name}`);
-    console.log(`  Email: ${user.email}`);
-    console.log(`  ID:    ${user._id}`);
+    // console.log(`[LOGIN] Success → user logged in`);
+    // console.log(`  Name:  ${user.name}`);
+    // console.log(`  Email: ${user.email}`);
+    // console.log(`  ID:    ${user._id}`);
 
     return res.status(200).json({
       token,
