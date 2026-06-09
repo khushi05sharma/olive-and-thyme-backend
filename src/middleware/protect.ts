@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 
 // ------ EXTEND EXPRESS REQUEST TYPE -------
-// By default req has: body, headers, params, query etc
-// We need to ADD a user field so we can attach the logged-in user to it
-// This tells TypeScript: req.user is allowed and has this shape
+// by default req has: body, headers, params, query etc
+// we need to ADD a user field so we can attach the logged-in user to it
+// this tells TypeScript: req.user is allowed and has this shape
 
 declare global {
   namespace Express {
@@ -21,26 +21,28 @@ declare global {
 
 const protect = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Step 1 — get token from Authorization header
+    // get token from Authorization header
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer")) {
       console.log(`[PROTECT] Blocked >> no token on ${req.method} ${req.url}`);
       return res
         .status(401)
-        .json({ message: "Not authorized — please login first" });
+        .json({ message: "Not authorized - please login first" });
     }
 
+    // extract token
     const token = authHeader.split(" ")[1];
 
     // verify token
-    // If expired or tampered → jwt.verify throws error → caught below
+    // if expired or tampered -> jwt.verify throws error -> caught below
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET is not defined in .env file");
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: string };
 
+    // find user (just because a token is valid doesn't mean the user still exists)
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
@@ -51,7 +53,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     // attach user to request object
-    // Now any route using protect can access req.user
+    // now any route using protect can access req.user
     // e.g. req.user.id to know who is saving/liking/commenting
     req.user = {
       id: user._id.toString(),
