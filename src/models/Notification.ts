@@ -3,11 +3,11 @@ import mongoose, { Document, Model } from "mongoose";
 export interface INotification extends Document {
   recipientId: string; // user who receives notification
   actorId: string; // user who caused it
-  actorName: string; // stored for display
+  actorName: string; 
   type: "like" | "comment";
-  recipeId: string; // which recipe
-  recipeTitle: string; // stored for display
-  message: string; // "liked your recipe" or "commented on your recipe"
+  recipeId: string; 
+  recipeTitle: string; 
+  message: string; 
   read: boolean;
   createdAt: Date;
 }
