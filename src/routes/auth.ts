@@ -7,7 +7,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// router is like a mini Express app — handles just auth routes
 // in index.ts we tell Express: "all /api/auth requests go here"
 const router = express.Router();
 
@@ -18,7 +17,7 @@ if (!process.env.JWT_SECRET) {
 
 const JWT_SECRET = process.env.JWT_SECRET; // store validated value
 
-// ---HELPER: create JWT token --------------
+// ---create JWT token --------------
 // We use this in both signup and login so we write it once
 
 const createToken = (userId: string): string => {
@@ -30,16 +29,14 @@ const createToken = (userId: string): string => {
 };
 
 // ---- ROUTE 1: SIGNUP ------
-// Frontend sends: { name, email, password }
-// We return: { token, user }
 
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    console.log(`[SIGNUP] Attempt → email: ${email}, name: ${name}`);
+    console.log("[SIGNUP] Attempt → email");
     //basic validation
     if (!name || !email || !password) {
-      console.log(`[SIGNUP] Failed → missing fields`);
+      console.log("[SIGNUP] Failed → missing fields");
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -50,16 +47,15 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
     //create new user
-    // User.create() calls our schema which triggers pre-save hook
     const user = await User.create({ name, email, password });
     // create JWT token with user's id
     const token = createToken(user._id.toString());
 
-    console.log(`[SIGNUP] Success → user created`);
-    console.log(`  Name:  ${user.name}`);
-    console.log(`  Email: ${user.email}`);
-    console.log(`  ID:    ${user._id}`);
-    console.log(`  Token: ${token.substring(0, 20)}...`);
+    // console.log(`[SIGNUP] Success → user created`);
+    // console.log(`  Name:  ${user.name}`);
+    // console.log(`  Email: ${user.email}`);
+    // console.log(`  ID:    ${user._id}`);
+    // console.log(`  Token: ${token.substring(0, 20)}...`);
 
     // send response back to frontend
     return res.status(201).json({
@@ -79,26 +75,21 @@ router.post("/signup", async (req, res) => {
 });
 
 // ----- ROUTE 2: LOGIN -------
-// Frontend sends: { email, password }
-// We return: { token, user }
 
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log(`[LOGIN] Attempt → email: ${email}`);
-    //basic validation
     if (!email || !password) {
-      console.log(`[LOGIN] Failed → missing fields`);
       return res
         .status(400)
         .json({ message: "please provide email and password" });
     }
     // find user by email
     // .select("+password") overrides select:false we set in schema
-    // We NEED password here to compare it — only in this route
+    // we need password here to compare it — only in this route
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      console.log(`[LOGIN] Failed → no user found for: ${email}`);
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
@@ -177,8 +168,7 @@ router.post("/forgot-password", async (req, res) => {
     // find user by email
     const user = await User.findOne({ email });
 
-    // IMPORTANT — always return success even if email not found
-    // this prevents hackers from knowing which emails are registered
+    // returning success even if email not found prevents from knowing which emails are registered
     if (!user) {
       return res.status(200).json({
         message: "If this email exists, a reset link has been sent",

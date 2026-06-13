@@ -15,8 +15,7 @@ export interface IUser extends Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// Schema ----------
-// defines shape of document in Mongodb
+// -- schema ----------
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -79,7 +78,7 @@ const userSchema = new mongoose.Schema<IUser>(
 
 userSchema.pre("save", async function () {
   // "this" refers to the user document being saved
-  // isModified checks if password field was changed in this save operation
+  // isModified checks if password was changed if not skip hashing logic
   if (!this.isModified("password")) {
     return;
   }
@@ -104,3 +103,6 @@ userSchema.methods.comparePassword = async function (
 const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 
 export default User;
+
+// : Promise<boolean>
+// This is the return type. means: This function will eventually return a boolean (true or false), but because it's asynchronous it returns a Promise first.

@@ -5,7 +5,6 @@ import protect from "../middleware/protect";
 const router = express.Router();
 
 // ----- POST /api/recipes — CREATE RECIPE ----------
-// protected — must be logged in
 // author comes from JWT token — user cannot fake authorship
 
 router.post("/", protect, async (req, res) => {
@@ -63,7 +62,7 @@ router.post("/", protect, async (req, res) => {
       },
     });
 
-    console.log(`[RECIPE] Created → ID: ${recipe._id}`);
+    console.log("[RECIPE] Created → ID:");
 
     return res.status(201).json({ recipe });
   } catch (error: any) {
@@ -78,7 +77,7 @@ router.post("/", protect, async (req, res) => {
 
 router.get("/my", protect, async (req, res) => {
   try {
-    console.log(`[RECIPE] Fetching recipes for ${req.user!.email}`);
+    console.log("[RECIPE] Fetching recipes for");
 
     const recipes = await Recipe.find({ "author.id": req.user!.id }).sort({
       createdAt: -1,

@@ -10,7 +10,7 @@ router.get("/", protect, async (req, res) => {
   try {
     const notifications = await Notification.find({ recipientId: req.user!.id })
       .sort({ createdAt: -1 }) // newest first
-      .limit(50); // max 50 at a time
+      .limit(50); 
 
     // Count notifications where: read = false
     const unreadCount = notifications.filter((n) => !n.read).length;

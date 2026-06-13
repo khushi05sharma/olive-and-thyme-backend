@@ -37,35 +37,36 @@ router.post("/like/:recipeId", protect, async (req, res) => {
 
     // ------- AUTO-CREATE NOTIFICATION -------------
 
-// Only notify if user liked someone else's recipe (not their own)
-// Only works for user-uploaded recipes (in my DB) - not Spoonacular
-if (!alreadyLiked) {
-  try {
-    // Skip Spoonacular IDs — they are short numbers like "716429"
-    // MongoDB IDs are 24 characters like "69e616a3039eba3b13336a43"
-    if (recipeId.length >= 20) {
-      const recipe = await Recipe.findById(recipeId);
-      console.log(`[NOTIF] Recipe lookup:`, recipe?.title ?? "not found");
+    // Only notify if user liked someone else's recipe (not their own)
+    if (!alreadyLiked) {
+      try {
+        // Skip Spoonacular IDs — they are short numbers like "716429"
+        // MongoDB IDs are 24 characters like "69e616a3039eba3b13336a43"
+        if (recipeId.length >= 20) {
+          const recipe = await Recipe.findById(recipeId);
+          console.log("[NOTIF] Recipe not found");
 
-      if (recipe && recipe.author.id !== req.user!.id) {
-        await Notification.create({
-          recipientId: recipe.author.id,
-          actorId:     req.user!.id,
-          actorName:   req.user!.name,
-          type:        "like",
-          recipeId:    recipe._id.toString(),
-          recipeTitle: recipe.title,
-          message:     "liked your recipe",
-        });
-        console.log(`[NOTIF] Like notification created for ${recipe.author.name}`);
+          if (recipe && recipe.author.id !== req.user!.id) {
+            await Notification.create({
+              recipientId: recipe.author.id,
+              actorId: req.user!.id,
+              actorName: req.user!.name,
+              type: "like",
+              recipeId: recipe._id.toString(),
+              recipeTitle: recipe.title,
+              message: "liked your recipe",
+            });
+            console.log(
+              `[NOTIF] Like notification created for ${recipe.author.name}`,
+            );
+          }
+        } else {
+          console.log("[NOTIF] Skipping Spoonacular recipe ");
+        }
+      } catch (err: any) {
+        console.log(`[NOTIF] Error:`, err.message);
       }
-    } else {
-      console.log(`[NOTIF] Skipping Spoonacular recipe: ${recipeId}`);
     }
-  } catch (err: any) {
-    console.log(`[NOTIF] Error:`, err.message);
-  }
-}
 
     return res.status(200).json({
       liked: !alreadyLiked, // return new like status
@@ -122,7 +123,7 @@ router.get("/me/interactions", protect, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-     // send both arrays to frontend
+    // send both arrays to frontend
     return res.status(200).json({
       likedRecipes: user.likedRecipes,
       savedRecipes: user.savedRecipes,
@@ -133,10 +134,4 @@ router.get("/me/interactions", protect, async (req, res) => {
   }
 });
 
-
 export default router;
-
-
-
-
-
