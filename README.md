@@ -1,4 +1,4 @@
-# 🍽️ Olive & Thyme Frontend
+# 🍽️ Olive & Thyme Backend
 
 > REST API server for Olive & Thyme — a **full-stack MERN** recipe sharing platform.
 
@@ -12,11 +12,11 @@ Built with **Node.js, Express.js, TypeScript, and MongoDB** to handle authentica
 
 ## 📂 Related Repositories
 
-💻 **Frontend:** https://github.com/khushi05sharma/olive-and-thyme-frontend
+💻 **Frontend:** [olive-and-thyme-frontend](https://github.com/khushi05sharma/olive-and-thyme-frontend)
 
-⚙️ **Backend:** https://github.com/khushi05sharma/olive-and-thyme-backend
+⚙️ **Backend:** [olive-and-thyme-backend](https://github.com/khushi05sharma/olive-and-thyme-backend)
 
-🐳 **Docker Setup:** https://github.com/khushi05sharma/olive-thyme-docker
+🐳 **Docker Setup:** [olive-thyme-docker](https://github.com/khushi05sharma/olive-thyme-docker)
 
 ---
 
