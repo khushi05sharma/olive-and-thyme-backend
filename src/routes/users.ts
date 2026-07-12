@@ -6,7 +6,7 @@ import Recipe from "../models/Recipe";
 
 const router = express.Router();
 
-// purpose: Like OR Unlike a recipe (toggle behavior)
+// Like OR Unlike a recipe (toggle behavior)
 
 router.post("/like/:recipeId", protect, async (req, res) => {
   try {
